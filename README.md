@@ -1,1 +1,1 @@
-##Ditched Elixir to write shitty rust code instead
+## Ditched Elixir to write shitty rust code instead
