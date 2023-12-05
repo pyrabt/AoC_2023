@@ -1,4 +1,4 @@
-use queues::*;
+use itertools::Itertools;
 use regex::Regex;
 use std::collections::{HashMap, HashSet};
 
@@ -61,10 +61,7 @@ pub fn part_two(input: &str) -> Option<u32> {
     let mut cards_count: HashMap<u32, u32> = HashMap::new();
     let mut card_matches: HashMap<u32, Vec<u32>> = HashMap::new();
     let card_num_regex = Regex::new(r"d\s*(\d+)\:").unwrap();
-    let mut queue: Queue<u32> = queue![]; 
-
     for card_line in input.split("\n") {
-        println!("{card_line}");
         let card_number: u32 = card_num_regex
             .captures(card_line)
             .unwrap()
@@ -74,47 +71,44 @@ pub fn part_two(input: &str) -> Option<u32> {
             .parse()
             .unwrap();
         let matches = get_matches(card_line, card_number);
-        cards_count.insert(card_number, 0);
+        cards_count.insert(card_number, 1);
         card_matches.insert(card_number, matches);
-        let _ = queue.add(card_number);
     }
 
-    //println!("{:?}", card_matches);
-    //println!("{:?}", cards_count);
-    //println!("{:?}", queue);
-
-    while queue.size() > 0{
-        println!("Queue size: {}", queue.size());
-        let current_card: u32 = queue.remove().unwrap();
-        println!("current card: {current_card}");
-        cards_count.entry(current_card).and_modify(|count| *count += 1);
-        for card in card_matches.get(&current_card).unwrap(){
-            //println!("match found: {card}");
-            let _ = queue.add(*card);
-        }
+    for c in card_matches.clone().into_keys().into_iter().sorted() {
+        eval_card(&c, &card_matches, &mut cards_count);
     }
 
     Some(cards_count.into_values().into_iter().sum())
+}
+
+fn eval_card(card: &u32, card_matches: &HashMap<u32, Vec<u32>>, mut cards_count: &mut HashMap<u32, u32>) {
+    let matches = card_matches.get(&card).unwrap();
+    for c in matches {
+        cards_count.entry(*c).and_modify(|count| *count += 1);
+        eval_card(c, card_matches, &mut cards_count);
+    }
 }
 
 fn get_matches(card_line: &str, card_num: u32) -> Vec<u32> {
     let winning_regex = Regex::new(r"\:(.*?)\|").unwrap();
     let player_regex = Regex::new(r"\|(.*?)$").unwrap();
     let mut winners: HashSet<&str> = HashSet::new();
-    let winner_nums = winning_regex
+    let winner_nums: Vec<&str> = winning_regex
         .captures(card_line)
         .unwrap()
         .get(1)
         .unwrap()
         .as_str()
         .split(" ")
-        .filter(|c| !c.is_empty());
+        .filter(|c| !c.is_empty()).collect();
     let player_nums: Vec<&str> = player_regex
         .captures(card_line)
         .unwrap()
         .get(1)
         .unwrap()
         .as_str()
+        .trim_end()
         .split(" ")
         .filter(|c| !c.is_empty())
         .collect();
@@ -129,10 +123,10 @@ fn get_matches(card_line: &str, card_num: u32) -> Vec<u32> {
             matches += 1;
         }
     }
-    if matches == 0{
+    if matches == 0 {
         return vec![];
     }
-    (card_num+1..=card_num+matches).collect()
+    ((card_num + 1)..=(card_num + matches)).collect()
 }
 
 #[cfg(test)]
