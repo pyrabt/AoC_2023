@@ -82,7 +82,11 @@ pub fn part_two(input: &str) -> Option<u32> {
     Some(cards_count.into_values().into_iter().sum())
 }
 
-fn eval_card(card: &u32, card_matches: &HashMap<u32, Vec<u32>>, mut cards_count: &mut HashMap<u32, u32>) {
+fn eval_card(
+    card: &u32,
+    card_matches: &HashMap<u32, Vec<u32>>,
+    mut cards_count: &mut HashMap<u32, u32>,
+) {
     let matches = card_matches.get(&card).unwrap();
     for c in matches {
         cards_count.entry(*c).and_modify(|count| *count += 1);
@@ -101,7 +105,8 @@ fn get_matches(card_line: &str, card_num: u32) -> Vec<u32> {
         .unwrap()
         .as_str()
         .split(" ")
-        .filter(|c| !c.is_empty()).collect();
+        .filter(|c| !c.is_empty())
+        .collect();
     let player_nums: Vec<&str> = player_regex
         .captures(card_line)
         .unwrap()

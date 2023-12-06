@@ -6,7 +6,7 @@ pub fn part_one(input: &str) -> Option<u32> {
 
     let mut closest: u32 = 0;
     for s in seeds {
-        let seed_loc= get_location(*s, &input_sections);
+        let seed_loc = get_location(*s, &input_sections);
 
         if closest == 0 || closest > seed_loc {
             closest = seed_loc;
@@ -22,7 +22,7 @@ pub fn part_two(input: &str) -> Option<u32> {
 
     let mut closest: u32 = 0;
 
-    for seed_range in seeds.chunks_exact(2){
+    for seed_range in seeds.chunks_exact(2) {
         for s in seed_range[0]..(seed_range[0] + seed_range[1]) {
             let s_loc = get_location(s, &input_sections);
             if closest == 0 || closest > s_loc {
@@ -60,7 +60,7 @@ fn get_fields(input: &str) -> Vec<Vec<u32>> {
     input_sections
 }
 
-fn get_location(seed: u32, map_sections: &Vec<Vec<u32>>) -> u32{
+fn get_location(seed: u32, map_sections: &Vec<Vec<u32>>) -> u32 {
     let mut current_dest: u32 = seed;
     for m in 1..=7 {
         let map_data = &map_sections[m];
@@ -68,8 +68,8 @@ fn get_location(seed: u32, map_sections: &Vec<Vec<u32>>) -> u32{
             let [dest, source, range] = set else {
                 panic!("Map set pattern couldn't be matched!");
             };
-            if current_dest >= *source && current_dest <= (source + range-1) {
-                current_dest = dest + (current_dest-source);
+            if current_dest >= *source && current_dest <= (source + range - 1) {
+                current_dest = dest + (current_dest - source);
                 break;
             }
         }
