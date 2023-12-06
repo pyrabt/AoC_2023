@@ -6,7 +6,7 @@ advent_of_code::solution!(4);
 
 pub fn part_one(input: &str) -> Option<u32> {
     let mut score: u32 = 0;
-    let winning_regex = Regex::new(r"\:(.*?)\|").unwrap();
+    let winning_regex = Regex::new(r":(.*?)\|").unwrap();
     let player_regex = Regex::new(r"\|(.*?)$").unwrap();
     for card_line in input.split("\n") {
         let mut winners: HashSet<&str> = HashSet::new();
@@ -60,7 +60,7 @@ fn calc_score(matches: i32) -> u32 {
 pub fn part_two(input: &str) -> Option<u32> {
     let mut cards_count: HashMap<u32, u32> = HashMap::new();
     let mut card_matches: HashMap<u32, Vec<u32>> = HashMap::new();
-    let card_num_regex = Regex::new(r"d\s*(\d+)\:").unwrap();
+    let card_num_regex = Regex::new(r"d\s*(\d+):").unwrap();
     for card_line in input.split("\n") {
         let card_number: u32 = card_num_regex
             .captures(card_line)
@@ -95,7 +95,7 @@ fn eval_card(
 }
 
 fn get_matches(card_line: &str, card_num: u32) -> Vec<u32> {
-    let winning_regex = Regex::new(r"\:(.*?)\|").unwrap();
+    let winning_regex = Regex::new(r":(.*?)\|").unwrap();
     let player_regex = Regex::new(r"\|(.*?)$").unwrap();
     let mut winners: HashSet<&str> = HashSet::new();
     let winner_nums: Vec<&str> = winning_regex
