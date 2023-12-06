@@ -1,66 +1,45 @@
-use std::collections::HashMap;
-
-use itertools::Itertools;
-
 advent_of_code::solution!(5);
 
 pub fn part_one(input: &str) -> Option<u32> {
     let input_sections = get_fields(input);
     let seeds = &input_sections[0];
-    println!("INPUTS RETRIEVED");
-
-    let mut maps: Vec<HashMap<u32, u32>> = vec![];
-    for s in 1..=7 {
-        maps.push(init_map(&input_sections[s]));
-    }
-
-    println!("Maps Created");
 
     let mut closest: u32 = 0;
     for s in seeds {
-        println!("Seed {s}");
-        let mut dest: u32 = *s;
-        for m in &maps {
-            if m.contains_key(&dest) {
-                dest = *m.get(&dest).unwrap();
-            }
-            println!("--> Destination: {dest}");
-        }
-        if closest == 0 || closest > dest {
-            closest = dest;
+        let seed_loc= get_location(*s, &input_sections);
+
+        if closest == 0 || closest > seed_loc {
+            closest = seed_loc;
         }
     }
 
     Some(closest)
 }
 
-fn init_map(data: &Vec<u32>) -> HashMap<u32, u32> {
-    let mut map: HashMap<u32, u32> = HashMap::new();
+pub fn part_two(input: &str) -> Option<u32> {
+    let input_sections = get_fields(input);
+    let seeds = &input_sections[0];
 
-    for set in 0..data.len() / 3 {
-        let start_index = set * 3;
-        let [dest, source, range] = data[start_index..start_index + 3] else {
-            panic!("Pattern not matched")
-        };
+    let mut closest: u32 = 0;
 
-        for v in 0..range {
-            map.insert(source + v, dest + v);
+    for seed_range in seeds.chunks_exact(2){
+        for s in seed_range[0]..(seed_range[0] + seed_range[1]) {
+            let s_loc = get_location(s, &input_sections);
+            if closest == 0 || closest > s_loc {
+                closest = s_loc;
+            }
         }
     }
 
-    map
+    Some(closest)
 }
 
 fn get_fields(input: &str) -> Vec<Vec<u32>> {
     let mut input_sections: Vec<_> = vec![];
     let mut temp_vec = "".to_owned();
     for l in input.lines() {
-        println!("{l}");
         let line = l.to_owned();
         if line.is_empty() || line == "end" {
-            let x: Vec<_> = temp_vec.split(" ").map(|s| s.to_owned()).collect();
-            println!("{:?}", x);
-            println!("----------------SECTION FINISHED------------");
             let data: Vec<_> = temp_vec
                 .trim_start()
                 .split(" ")
@@ -81,8 +60,21 @@ fn get_fields(input: &str) -> Vec<Vec<u32>> {
     input_sections
 }
 
-pub fn part_two(_input: &str) -> Option<u32> {
-    None
+fn get_location(seed: u32, map_sections: &Vec<Vec<u32>>) -> u32{
+    let mut current_dest: u32 = seed;
+    for m in 1..=7 {
+        let map_data = &map_sections[m];
+        for set in map_data.chunks_exact(3) {
+            let [dest, source, range] = set else {
+                panic!("Map set pattern couldn't be matched!");
+            };
+            if current_dest >= *source && current_dest <= (source + range-1) {
+                current_dest = dest + (current_dest-source);
+                break;
+            }
+        }
+    }
+    current_dest
 }
 
 #[cfg(test)]
@@ -98,6 +90,6 @@ mod tests {
     #[test]
     fn test_part_two() {
         let result = part_two(&advent_of_code::template::read_file("examples", DAY));
-        assert_eq!(result, None);
+        assert_eq!(result, Some(46));
     }
 }
